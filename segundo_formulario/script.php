@@ -1,61 +1,54 @@
 <?php
-$entrada = $_POST['numero'] ?? null;
-$cantidadPrimos = null;
-$numeroInvertido = null;
+$limite = $_POST['numero'] ?? null;
+$cantidadPrimos = 0;
 $error = null;
 
-if ($entrada !== null) {
-	if (!is_string($entrada) || preg_match('/^\d+$/', $entrada) !== 1) {
-		$error = 'Ingrese un número entero válido.';
-	} else {
-		$limite = filter_var($entrada, FILTER_VALIDATE_INT);
+if ($limite !== null) {
+    if (!is_numeric($limite)) {
+        $error = 'Ingrese un número válido.';
+    } else {
+        $limite = (int) $limite;
 
-		if ($limite === false || $limite < 1 || $limite > 1000000) {
-			$error = 'El límite debe estar entre 1 y 1 000 000.';
-		} else {
-			$numeroInvertido = (int) strrev((string) $limite);
-			$esPrimo = array_fill(0, $limite + 1, true);
-			$esPrimo[0] = false;
-			if ($limite >= 1) {
-				$esPrimo[1] = false;
-			}
+        if ($limite < 1) {
+            $error = 'Ingrese un número mayor o igual a 1.';
+        } else {
+            for ($numero = 2; $numero <= $limite; $numero++) {
+                $esPrimo = true;
 
-			for ($numero = 2; $numero * $numero <= $limite; $numero++) {
-				if ($esPrimo[$numero]) {
-					for ($multiplo = $numero * $numero; $multiplo <= $limite; $multiplo += $numero) {
-						$esPrimo[$multiplo] = false;
-					}
-				}
-			}
+                for ($divisor = 2; $divisor * $divisor <= $numero; $divisor++) {
+                    if ($numero % $divisor === 0) {
+                        $esPrimo = false;
+                        break;
+                    }
+                }
 
-			$cantidadPrimos = 0;
-			for ($numero = 2; $numero <= $limite; $numero++) {
-				if ($esPrimo[$numero]) {
-					$cantidadPrimos++;
-				}
-			}
-		}
-	}
+                if ($esPrimo) {
+                    $cantidadPrimos++;
+                }
+            }
+        }
+    }
 }
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Resultado de números primos</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultado de números primos</title>
 </head>
 <body>
-	<h1>Contar números primos</h1>
-	<?php if ($error !== null): ?>
-		<p role="alert"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></p>
-	<?php elseif ($entrada !== null): ?>
-		<p>Entre 1 y <?= htmlspecialchars($entrada, ENT_QUOTES, 'UTF-8') ?> hay <strong><?= $cantidadPrimos ?></strong> números primos.</p>
-		<p>El número invertido es: <strong><?= $numeroInvertido ?></strong>.</p>
-	<?php else: ?>
-		<p>Ingrese un límite en el formulario para ver el resultado.</p>
-	<?php endif; ?>
-	<p><a href="index.html">Volver al formulario</a></p>
+    <h1>Números primos</h1>
+
+    <?php if ($error !== null): ?>
+        <p role="alert"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></p>
+    <?php elseif ($limite !== null): ?>
+        <p>Hay <strong><?= $cantidadPrimos ?></strong> números primos desde 1 hasta <?= htmlspecialchars((string) $limite, ENT_QUOTES, 'UTF-8') ?>.</p>
+    <?php else: ?>
+        <p>Ingrese un número para ver el resultado.</p>
+    <?php endif; ?>
+
+    <p><a href="index.html">Volver al formulario</a></p>
 </body>
 </html>
 
